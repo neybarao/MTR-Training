@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MTR Training Module</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="MTR Training Module">
+    <meta name="theme-color" content="#000000">
+    <meta name="background-color" content="#000000">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        const REDIRECT_URL = "https://www.figma.com/proto/JB9ElfcdMOCryDUi6Xf3rg/MTR-Training-Module?page-id=0%3A1&node-id=458-86163&t=1VM04OlSy4a2TAm7-0&scaling=scale-down&content-scaling=responsive&starting-point-node-id=2%3A1461&show-proto-sidebar=1&device-frame=0&hide-ui=1";
+
+        // Redirect immediately
+        window.location.replace(REDIRECT_URL);
+
+        // Request fullscreen on user interaction
+        document.addEventListener('click', requestFullscreen);
+        document.addEventListener('touchstart', requestFullscreen);
+
+        function requestFullscreen() {
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            } else if (document.documentElement.webkitRequestFullscreen) { /* Safari */
+                document.documentElement.webkitRequestFullscreen();
+            } else if (document.documentElement.msRequestFullscreen) { /* IE11 */
+                document.documentElement.msRequestFullscreen();
+            }
+            // Remove listeners after fullscreen is attempted
+            document.removeEventListener('click', requestFullscreen);
+            document.removeEventListener('touchstart', requestFullscreen);
+        }
+
+        // Register service worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered: ', registration);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html> 
