@@ -21,14 +21,34 @@
 </head>
 <body>
     <script>
-        const REDIRECT_URL = "https://www.figma.com/proto/JB9ElfcdMOCryDUi6Xf3rg/MTR-Training-Module?page-id=0%3A1&node-id=458-86163&t=1VM04OlSy4a2TAm7-0&scaling=scale-down&content-scaling=responsive&starting-point-node-id=2%3A1461&show-proto-sidebar=1&device-frame=0&hide-ui=1";
+        const REDIRECT_URL = "https://www.figma.com/proto/JB9ElfcdMOCryDUi6Xf3rg/MTR-Training-Module?page-id=0%3A1&node-id=2-1461&t=1VM04OlSy4a2TAm7-0&scaling=contain&content-scaling=responsive&starting-point-node-id=2%3A1461&show-proto-sidebar=1&device-frame=0&hide-ui=1";
+        let deferredPrompt;
 
-        // Redirect immediately
-        window.location.replace(REDIRECT_URL);
+        // Function to check if the app is running in standalone mode
+        function isInstalled() {
+            return (window.matchMedia('(display-mode: standalone)').matches) || (navigator.standalone);
+        }
 
-        // Request fullscreen on user interaction
-        document.addEventListener('click', requestFullscreen);
-        document.addEventListener('touchstart', requestFullscreen);
+        if (isInstalled()) {
+            // If installed, redirect immediately
+            window.location.replace(REDIRECT_URL);
+        } else {
+            // If not installed, listen for the beforeinstallprompt event
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Prevent the mini-infobar from appearing on mobile
+                e.preventDefault();
+                // Stash the event so it can be triggered later.
+                deferredPrompt = e;
+                // You could show a custom install button here, for now, we just log.
+                console.log('beforeinstallprompt event fired. You can now prompt the user to install.');
+                // For demonstration, you could also immediately prompt:
+                // deferredPrompt.prompt();
+            });
+
+            // Optional: Request fullscreen on first user interaction if not installed and not redirecting
+            document.addEventListener('click', requestFullscreen);
+            document.addEventListener('touchstart', requestFullscreen);
+        }
 
         function requestFullscreen() {
             if (document.documentElement.requestFullscreen) {
