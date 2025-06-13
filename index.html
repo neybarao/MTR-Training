@@ -16,13 +16,31 @@
             margin: 0;
             overflow: hidden;
             background-color: #000000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #installButton {
+            display: none;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
+    <button id="installButton">Install App</button>
+
     <script>
         const REDIRECT_URL = "https://www.figma.com/proto/JB9ElfcdMOCryDUi6Xf3rg/MTR-Training-Module?page-id=0%3A1&node-id=2-1461&t=1VM04OlSy4a2TAm7-0&scaling=contain&content-scaling=responsive&starting-point-node-id=2%3A1461&show-proto-sidebar=1&device-frame=0&hide-ui=1";
         let deferredPrompt;
+        const installButton = document.getElementById('installButton');
 
         // Function to check if the app is running in standalone mode
         function isInstalled() {
@@ -39,10 +57,27 @@
                 e.preventDefault();
                 // Stash the event so it can be triggered later.
                 deferredPrompt = e;
-                // You could show a custom install button here, for now, we just log.
-                console.log('beforeinstallprompt event fired. You can now prompt the user to install.');
-                // For demonstration, you could also immediately prompt:
-                // deferredPrompt.prompt();
+                // Show the install button
+                installButton.style.display = 'block';
+                console.log('beforeinstallprompt event fired. Install button shown.');
+            });
+
+            installButton.addEventListener('click', () => {
+                // Hide the install button
+                installButton.style.display = 'none';
+                // Show the install prompt
+                deferredPrompt.prompt();
+                // Wait for the user to respond to the prompt
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                        // If installed, redirect immediately after user accepts
+                        window.location.replace(REDIRECT_URL);
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    deferredPrompt = null;
+                });
             });
 
             // Optional: Request fullscreen on first user interaction if not installed and not redirecting
