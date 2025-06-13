@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MTR Training</title>
     <link rel="manifest" href="/manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="MTR Training Module">
+    <meta name="apple-mobile-web-app-title" content="MTR Training">
     <meta name="theme-color" content="#000000">
     <meta name="background-color" content="#000000">
     <link rel="apple-touch-icon" href="/MTR-Training/icons/apple-touch-icon.png">
@@ -32,15 +33,21 @@
             cursor: pointer;
             z-index: 1000;
         }
+        #figmaEmbed {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
     </style>
 </head>
 <body>
     <button id="installButton">Install App</button>
+    <iframe id="figmaEmbed" style="border: none" src="https://embed.figma.com/proto/JB9ElfcdMOCryDUi6Xf3rg/MTR-Training-Module?page-id=0%3A1&node-id=2-1461&viewport=428%2C25%2C0.5&scaling=contain&content-scaling=responsive&starting-point-node-id=2%3A1461&show-proto-sidebar=1&embed-host=share" allowfullscreen></iframe>
 
     <script>
-        const REDIRECT_URL = "https://www.figma.com/proto/JB9ElfcdMOCryDUi6Xf3rg/MTR-Training-Module?page-id=0%3A1&node-id=2-1461&t=1VM04OlSy4a2TAm7-0&scaling=contain&content-scaling=responsive&starting-point-node-id=2%3A1461&show-proto-sidebar=1&device-frame=0&hide-ui=1";
         let deferredPrompt;
         const installButton = document.getElementById('installButton');
+        const figmaEmbed = document.getElementById('figmaEmbed');
 
         // Function to check if the app is running in standalone mode
         function isInstalled() {
@@ -48,31 +55,33 @@
         }
 
         if (isInstalled()) {
-            // If installed, redirect immediately
-            window.location.replace(REDIRECT_URL);
+            // If installed, show the Figma embed and hide the install button
+            installButton.style.display = 'none';
+            figmaEmbed.style.display = 'block';
+            // Request fullscreen on user interaction for the iframe content
+            document.addEventListener('click', requestFullscreen);
+            document.addEventListener('touchstart', requestFullscreen);
+
         } else {
-            // If not installed, listen for the beforeinstallprompt event
+            // If not installed, prepare for install prompt and hide the embed
+            figmaEmbed.style.display = 'none';
             window.addEventListener('beforeinstallprompt', (e) => {
-                // Prevent the mini-infobar from appearing on mobile
                 e.preventDefault();
-                // Stash the event so it can be triggered later.
                 deferredPrompt = e;
-                // Show the install button
                 installButton.style.display = 'block';
                 console.log('beforeinstallprompt event fired. Install button shown.');
             });
 
             installButton.addEventListener('click', () => {
-                // Hide the install button
                 installButton.style.display = 'none';
-                // Show the install prompt
                 deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('User accepted the install prompt');
-                        // If installed, redirect immediately after user accepts
-                        window.location.replace(REDIRECT_URL);
+                        // If installed, show the embed after user accepts
+                        figmaEmbed.style.display = 'block';
+                        // Also attempt fullscreen here if it's the first interaction after install
+                        requestFullscreen();
                     } else {
                         console.log('User dismissed the install prompt');
                     }
@@ -80,9 +89,7 @@
                 });
             });
 
-            // Optional: Request fullscreen on first user interaction if not installed and not redirecting
-            document.addEventListener('click', requestFullscreen);
-            document.addEventListener('touchstart', requestFullscreen);
+            // Removed fullscreen request for non-installed state here as it would conflict with install prompt.
         }
 
         function requestFullscreen() {
